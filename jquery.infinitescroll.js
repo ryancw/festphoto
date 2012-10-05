@@ -47,6 +47,7 @@
         debug: false,
         behavior: undefined,
         binder: $(window), // used to cache the selector
+            nextUrl : undefined,
         nextSelector: "div.navigation a:first",
         navSelector: "div.navigation",
         contentSelector: null, // rename to pageFragment
@@ -118,14 +119,17 @@
             this.options = opts;
 
             // Validate page fragment path
+            if(opts.nextUrl == undefined) { //
+                // Validate page fragment path
             var path = $(opts.nextSelector).attr('href');
-            if (!path) {
+             if (!path) {
                 this._debug('Navigation selector not found');
                 return false;
             }
 
             // Set the path to be a relative URL from root.
             opts.path = this._determinepath(path);
+        }
 
             // contentSelector is 'page fragment' option for .load() / .ajax() calls
             opts.contentSelector = opts.contentSelector || this.element;
@@ -497,9 +501,9 @@
                 // if we're dealing with a table we can't use DIVs
                 box = $(opts.contentSelector).is('table') ? $('<tbody/>') : $('<div/>');
 
-                desturl = path.join(opts.state.currPage);
+                desturl = opts.nextUrl != undefined ? opts.nextUrl(opts.state.currPage) : path.join(opts.state.currPage);
 
-                method = (opts.dataType == 'html' || opts.dataType == 'json' ) ? opts.dataType : 'html+callback';
+                method = (opts.dataType == 'html' || opts.dataType == 'json' || opts.dataType == 'jsonp') ? opts.dataType : 'html+callback';
                 if (opts.appendCallback && opts.dataType == 'html') method += '+callback'
 
                     switch (method) {
